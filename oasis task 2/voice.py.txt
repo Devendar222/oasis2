@@ -1,0 +1,151 @@
+pip install SpeechRecognition pyttsx3
+import speech_recognition as sr
+import pyttsx3
+import datetime
+import webbrowser
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def get_audio():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio)
+            print(f"You said: {text}")
+            return text.lower()
+        except sr.UnknownValueError:
+            print("Sorry, I did not understand that.")
+            return ""
+        except sr.RequestError:
+            print("Request failed; check your network connection.")
+            return ""
+
+def respond_to_command(command):
+    if "hello" in command:
+        speak("Hello! How can I help you?")
+    elif "time" in command:
+        now = datetime.datetime.now()
+        speak(f"The current time is {now.strftime('%H:%M')}")
+    elif "date" in command:
+        today = datetime.datetime.today()
+        speak(f"Today's date is {today.strftime('%B %d, %Y')}")
+    elif "search" in command:
+        speak("What do you want to search for?")
+        query = get_audio()
+        url = f"https://www.google.com/search?q={query}"
+        webbrowser.open(url)
+        speak(f"Here are the results for {query}")
+    else:
+        speak("Sorry, I can only respond to simple commands right now.")
+
+def main():
+    speak("Hello, I am your voice assistant. How can I help you today?")
+    while True:
+        command = get_audio()
+        if command:
+            respond_to_command(command)
+        if "exit" in command or "stop" in command:
+            speak("Goodbye!")
+            break
+
+if __name__ == "__main__":
+    main()
+pip install SpeechRecognition pyttsx3 requests
+import speech_recognition as sr
+import pyttsx3
+import datetime
+import webbrowser
+import smtplib
+import requests
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def get_audio():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio)
+            print(f"You said: {text}")
+            return text.lower()
+        except sr.UnknownValueError:
+            print("Sorry, I did not understand that.")
+            return ""
+        except sr.RequestError:
+            print("Request failed; check your network connection.")
+            return ""
+
+def send_email(to, subject, body):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login('your_email@gmail.com', 'your_password')
+    message = f'Subject: {subject}\n\n{body}'
+    server.sendmail('your_email@gmail.com', to, message)
+    server.close()
+
+def get_weather(city):
+    api_key = 'your_openweathermap_api_key'
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
+    response = requests.get(url)
+    weather_data = response.json()
+    if weather_data['cod'] == 200:
+        main = weather_data['main']
+        temperature = main['temp']
+        weather_description = weather_data['weather'][0]['description']
+        return f"The temperature in {city} is {temperature}°C with {weather_description}."
+    else:
+        return "City not found."
+
+def respond_to_command(command):
+    if "hello" in command:
+        speak("Hello! How can I assist you today?")
+    elif "time" in command:
+        now = datetime.datetime.now()
+        speak(f"The current time is {now.strftime('%H:%M')}")
+    elif "date" in command:
+        today = datetime.datetime.today()
+        speak(f"Today's date is {today.strftime('%B %d, %Y')}")
+    elif "search" in command:
+        speak("What do you want to search for?")
+        query = get_audio()
+        url = f"https://www.google.com/search?q={query}"
+        webbrowser.open(url)
+        speak(f"Here are the results for {query}")
+    elif "email" in command:
+        speak("What is the recipient's email address?")
+        to = get_audio()
+        speak("What is the subject?")
+        subject = get_audio()
+        speak("What is the body of the email?")
+        body = get_audio()
+        send_email(to, subject, body)
+        speak("Email has been sent.")
+    elif "weather" in command:
+        speak("Which city's weather would you like to know?")
+        city = get_audio()
+        weather_info = get_weather(city)
+        speak(weather_info)
+    elif "exit" in command or "stop" in command:
+        speak("Goodbye!")
+        exit()
+    else:
+        speak("I'm not sure how to respond to that yet.")
+
+def main():
+    speak("Hello, I am your advanced voice assistant. How can I help you today?")
+    while True:
+        command = get_audio()
+        if command:
+            respond_to_command(command)
+
+if __name__ == "__main__":
+    main()
